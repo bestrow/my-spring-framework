@@ -171,10 +171,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	private static final boolean IN_NATIVE_IMAGE = (System.getProperty("org.graalvm.nativeimage.imagecode") != null);
 
-
+	// 静态初始化块，在整个容器创建过程中只执行一次
 	static {
 		// Eagerly load the ContextClosedEvent class to avoid weird classloader issues
 		// on application shutdown in WebLogic 8.1. (Reported by Dustin Woods.)
+		// 为了避免应用程序在 WebLogic 8.1 关闭时出现类加载异常加载问题，加载 IOC 容
+		// 器关闭事件(ContextClosedEvent)类
 		ContextClosedEvent.class.getName();
 	}
 
@@ -488,7 +490,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getResources
 	 * @see org.springframework.core.io.support.PathMatchingResourcePatternResolver
 	 */
+	// 获取一个 Spring Source 的加载器用于读入 Spring Bean配置信息
 	protected ResourcePatternResolver getResourcePatternResolver() {
+		// AbstractApplicationContext 继承 DefaultResourceLoader，因此也是一个资源加载器
+		// Spring 资源加载器，其 getResource(String location)方法用于载入资源
 		return new PathMatchingResourcePatternResolver(this);
 	}
 
@@ -689,6 +694,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getBeanFactory()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+		// 这里使用了委派设计模式，父类定义了抽象的 refreshBeanFactory() 方法，具体实现调用子类容器的 refreshBeanFactory() 方法
 		refreshBeanFactory();
 		return getBeanFactory();
 	}
